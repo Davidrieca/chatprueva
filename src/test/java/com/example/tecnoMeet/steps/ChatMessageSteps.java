@@ -53,6 +53,13 @@ public class ChatMessageSteps {
         String[] pathParts = uri.getPath().split("/");
         String matchId = pathParts[pathParts.length - 1];
 
+        // Set up dummy users and a match for the request
+        Map<String, String> queryParamsTmp = Arrays.stream(uri.getQuery().split("&"))
+                .map(p -> p.split("="))
+                .collect(Collectors.toMap(p -> p[0], p -> p[1]));
+        String sender = queryParamsTmp.get("senderId");
+        setupChatMatch(matchId, sender, "receiver");
+
         // Extraer query params
         Map<String, String> queryParams = Arrays.stream(uri.getQuery().split("&"))
                 .map(p -> p.split("="))
