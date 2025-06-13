@@ -5,6 +5,7 @@ import io.cucumber.java.en.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -15,6 +16,9 @@ public class MatchSteps {
     private Match match;
     private Exception thrownError;
     private ResultActions response;
+
+    @Autowired
+    private JdbcClient jdbcClient;
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,11 +46,30 @@ public class MatchSteps {
 
     @When("I send a POST request for match to {string}")
     public void i_send_a_post_request_for_match_to(String url) throws Exception {
+        String[] parts = url.split("/");
+        String liker = parts[parts.length - 2];
+        String liked = parts[parts.length - 1];
+
+        jdbcClient.sql("INSERT INTO USERS (id, name) VALUES (:id, :name)")
+                .param("id", liker).param("name", liker).update();
+        jdbcClient.sql("INSERT INTO USERS (id, name) VALUES (:id, :name)")
+                .param("id", liked).param("name", liked).update();
+
         response = mockMvc.perform(post(url));
     }
 
     @When("I send a DELETE request for match to {string}")
     public void i_send_a_delete_request_for_match_to(String url) throws Exception {
+        String[] parts = url.split("/");
+        String matchId = parts[parts.length - 1];
+
+        jdbcClient.sql("INSERT INTO USERS (id, name) VALUES (:id, :name)")
+                .param("id", "u1").param("name", "u1").update();
+        jdbcClient.sql("INSERT INTO USERS (id, name) VALUES (:id, :name)")
+                .param("id", "u2").param("name", "u2").update();
+        jdbcClient.sql("INSERT INTO MATCHES (id, liker_id, liked_id, status) VALUES (:id, 'u1', 'u2', 'MATCHED')")
+                .param("id", matchId).update();
+
         response = mockMvc.perform(delete(url));
     }
 

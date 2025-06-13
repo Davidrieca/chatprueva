@@ -50,7 +50,7 @@ public class UserSteps {
 
     @Then("the response code for user should be {int}")
     public void userStatusCode(int code) throws Exception {
-        response.andExpect(MockMvcResultMatchers.status().isCreated()); // o is(201)
+        response.andExpect(MockMvcResultMatchers.status().is(code));
 
     }
 }
